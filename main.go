@@ -19,12 +19,12 @@ func main() {
 }
 
 func Form() {
-	fmt.Println("Welcome to the wall painter! Press `q` to quit.")
+	fmt.Println("Welcome to the wall painter!")
 	scanner := bufio.NewScanner(os.Stdin)
 	area := 0.0
 	//lst := []int{}
 	for {
-		wall, exitCode := ReadWall(scanner)
+		wall, exitCode := ReadWall(scanner, "wall")
 		if exitCode == "quit" {
 			break
 		}
@@ -84,26 +84,29 @@ func InputBoolean(scanner *bufio.Scanner, question string) (bool, string) {
 	return true, scanner.Text()
 }
 
-func ReadWall(scanner *bufio.Scanner) (square, string) {
+func ReadWall(scanner *bufio.Scanner, item string) (square, string) {
+	isDoubled := true
 	fmt.Println()
-	instruct("wall")
-	height, command := InputValue(scanner, "height", "wall")
+	instruct(item)
+	height, command := InputValue(scanner, "height", item)
 	if command != "" {
 		return square{height: 0, width: 0}, command
 	}
-	width, command := InputValue(scanner, "width", "wall")
+	width, command := InputValue(scanner, "width", item)
 	if command != "" {
 		return square{height: 0, width: 0}, command
 	}
-	isDoubled, command := InputBoolean(scanner, "Paint the wall on both sides?")
-	if command != "" {
-		return square{height: 0, width: 0}, command
+	if item == "wall" {
+		isDoubled, command = InputBoolean(scanner, "Paint the wall on both sides?")
+		if command != "" {
+			return square{height: 0, width: 0}, command
+		}
 	}
 
 	return square{height: height, width: width, isDoubled: isDoubled}, command
 }
 
 func instruct(item string) {
-	fmt.Printf("Describe the %s in UNTS (for ex \"1.33\" or \"3\"). Type \"cancel\" to cancel this wall. Type \"quit\" to move to the next step:\n",
+	fmt.Printf("Describe the %s in UNITS (for ex \"1.33\" or \"3\"). Type \"cancel\" to cancel this wall. Type \"quit\" to finish inputing walls:\n",
 		item)
 }
