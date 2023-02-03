@@ -12,6 +12,7 @@ type square struct {
 	width     float64
 	isDoubled bool
 	unit      string
+	windows   []square
 }
 
 func main() {
@@ -24,7 +25,7 @@ func Form() {
 	area := 0.0
 	//lst := []int{}
 	for {
-		wall, exitCode := ReadWall(scanner, "wall")
+		wall, exitCode := ReadItem(scanner, "wall")
 		if exitCode == "quit" {
 			break
 		}
@@ -42,7 +43,7 @@ func InputValue(scanner *bufio.Scanner, name string, item string) (float64, stri
 	fmt.Printf("Input %s:", name)
 
 	for scanner.Scan() {
-		if scanner.Text() == "cancel" || scanner.Text() == "quit" {
+		if scanner.Text() == "cancel" || scanner.Text() == "quit" || scanner.Text() == "end" {
 			break
 		}
 
@@ -84,8 +85,9 @@ func InputBoolean(scanner *bufio.Scanner, question string) (bool, string) {
 	return true, scanner.Text()
 }
 
-func ReadWall(scanner *bufio.Scanner, item string) (square, string) {
+func ReadItem(scanner *bufio.Scanner, item string) (square, string) {
 	isDoubled := true
+	windowList := []square{}
 	fmt.Println()
 	instruct(item)
 	height, command := InputValue(scanner, "height", item)
@@ -101,12 +103,38 @@ func ReadWall(scanner *bufio.Scanner, item string) (square, string) {
 		if command != "" {
 			return square{height: 0, width: 0}, command
 		}
+
+		hasOpenings, command := InputBoolean(scanner, "Does the wall have doors, windows or other rectangular openings?")
+		if command != "" {
+			return square{height: 0, width: 0}, command
+		}
+		if hasOpenings {
+			fmt.Println("Please specify the sizes of the windows/doors")
+			for {
+				window, exitCode := ReadItem(scanner, "window/door")
+				if exitCode == "quit" {
+					return square{}, exitCode
+				}
+				if exitCode == "end" {
+					break
+				}
+				if exitCode == "cancel" {
+					fmt.Println("Current window/door was cancelled.")
+					continue
+				}
+				windowList = append(windowList, window)
+			}
+		}
 	}
 
-	return square{height: height, width: width, isDoubled: isDoubled}, command
+	value := square{height: height, width: width, isDoubled: isDoubled, windows: windowList}
+	if item == "wall" {
+		fmt.Println("Current wall results:", value)
+	}
+	return value, command
 }
 
 func instruct(item string) {
-	fmt.Printf("Describe the %s in UNITS (for ex \"1.33\" or \"3\"). Type \"cancel\" to cancel this wall. Type \"quit\" to finish inputing walls:\n",
+	fmt.Printf("Describe the %s in meters (for ex \"1.33\" or \"3\"). Type \"cancel\" to cancel this wall. Type \"quit\" to finish inputing walls:\n",
 		item)
 }
