@@ -8,6 +8,8 @@ import (
 	"example.com/wallpaint/cli"
 )
 
+var PRICE_INSTRUCTION string = "Please specify the price of the paint you wish to use in EUR."
+
 type square struct {
 	height    float64
 	width     float64
@@ -47,7 +49,17 @@ func Form() {
 		}
 		area += Area(wall)
 	}
-	fmt.Printf("\n\nTotal wall area is %.2f", area)
+	fmt.Printf("\n\nTotal wall area is %.2f\n", area)
+
+	for {
+		price, exitCode := cli.InputValue(scanner, "price of paint (EUR)", "item", PRICE_INSTRUCTION)
+		if exitCode == "" {
+			fmt.Printf("Total price will be %.2f", price*area)
+			break
+		} else {
+			fmt.Printf("Please specify a price!")
+		}
+	}
 }
 
 func ReadItem(scanner *bufio.Scanner, item string) (square, string) {
