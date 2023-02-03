@@ -15,6 +15,17 @@ type square struct {
 	windows   []square
 }
 
+func Area(wall square) float64 {
+	area := wall.height * wall.width
+	for _, window := range wall.windows {
+		area -= window.height * window.width
+	}
+	if wall.isDoubled {
+		area *= 2
+	}
+	return area
+}
+
 func main() {
 	Form()
 }
@@ -33,12 +44,12 @@ func Form() {
 			fmt.Println("Current wall was cancelled.")
 			continue
 		}
-		area += wall.height * wall.width
+		area += Area(wall)
 	}
 	fmt.Printf("\n\nTotal wall area is %.2f", area)
 }
 
-func InputValue(scanner *bufio.Scanner, name string, item string) (float64, string) {
+func InputValue(scanner *bufio.Scanner, name string, item string, instructionsLine string) (float64, string) {
 	var value float64
 	fmt.Printf("Input %s:", name)
 
@@ -51,7 +62,7 @@ func InputValue(scanner *bufio.Scanner, name string, item string) (float64, stri
 		value, err := strconv.ParseFloat(input, 64)
 
 		if err != nil {
-			fmt.Println("Input Error!")
+			fmt.Println("Input Error!", instructionsLine)
 			instruct(item)
 		} else {
 			return value, ""
@@ -90,11 +101,11 @@ func ReadItem(scanner *bufio.Scanner, item string) (square, string) {
 	windowList := []square{}
 	fmt.Println()
 	instruct(item)
-	height, command := InputValue(scanner, "height", item)
+	height, command := InputValue(scanner, "height", item, instruct(item))
 	if command != "" {
 		return square{height: 0, width: 0}, command
 	}
-	width, command := InputValue(scanner, "width", item)
+	width, command := InputValue(scanner, "width", item, instruct(item))
 	if command != "" {
 		return square{height: 0, width: 0}, command
 	}
@@ -134,7 +145,7 @@ func ReadItem(scanner *bufio.Scanner, item string) (square, string) {
 	return value, command
 }
 
-func instruct(item string) {
-	fmt.Printf("Describe the %s in meters (for ex \"1.33\" or \"3\"). Type \"cancel\" to cancel this wall. Type \"quit\" to finish inputing walls:\n",
+func instruct(item string) string {
+	return fmt.Sprintf("Describe the %s in meters (for ex \"1.33\" or \"3\"). Type \"cancel\" to cancel this wall. Type \"quit\" to finish inputing walls:\n",
 		item)
 }
