@@ -37,10 +37,12 @@ func Form() {
 	fmt.Println("Welcome to the wall painter!")
 	scanner := bufio.NewScanner(os.Stdin)
 	area := 0.0
-	//lst := []int{}
 	for {
 		wall, exitCode := ReadItem(scanner, "wall")
 		if exitCode == "quit" {
+			return
+		}
+		if exitCode == "end" {
 			break
 		}
 		if exitCode == "cancel" {
@@ -49,7 +51,7 @@ func Form() {
 		}
 		area += Area(wall)
 	}
-	fmt.Printf("\n\nTotal wall area is %.2f\n", area)
+	fmt.Printf("\n=============================================\nTotal wall area is %.2f\n", area)
 
 	for {
 		price, exitCode := cli.InputValue(scanner, "price of paint (EUR)", "item", PRICE_INSTRUCTION)
