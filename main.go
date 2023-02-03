@@ -7,36 +7,10 @@ import (
 	"strconv"
 
 	"example.com/wallpaint/cli"
+	"example.com/wallpaint/square"
 )
 
 var PRICE_INSTRUCTION string = "Please specify the price of the paint you wish to use in EUR."
-
-type square struct {
-	height    float64
-	width     float64
-	isDoubled bool
-	unit      string
-	windows   []square
-}
-
-func Area(wall square) float64 {
-	area := wall.height * wall.width
-	for _, window := range wall.windows {
-		area -= window.height * window.width
-	}
-	if wall.isDoubled {
-		area *= 2
-	}
-	return area
-}
-
-func Represent(wall square) string {
-	text := fmt.Sprintf("Wall of height %.2f and width %.2f\n", wall.height, wall.width)
-	for _, window := range wall.windows {
-		text += fmt.Sprintf("  window of height %.2f and width %.2f\n", window.height, window.width)
-	}
-	return text
-}
 
 func main() {
 	Form()
@@ -46,10 +20,10 @@ func Form() {
 	fmt.Println("Welcome to the wall painter! Input \"quit\" at any time to quit the program")
 	scanner := bufio.NewScanner(os.Stdin)
 	area := 0.0
-	wallList := []square{}
+	wallList := []square.Square{}
 	for {
-		fmt.Printf(instruct("wall"))
-		wall, exitCode := ReadItem(scanner, "wall")
+		fmt.Printf(square.Instruct("wall"))
+		wall, exitCode := square.ReadItem(scanner, "wall")
 		if exitCode == "quit" {
 			return
 		}
@@ -66,7 +40,7 @@ func Form() {
 	fmt.Printf("\n=============================================\nLet's check that we got everything right. You inputed this data:\n")
 	for {
 		for i, wall := range wallList {
-			fmt.Println("Id:", i, Represent(wall))
+			fmt.Println("Id:", i, square.Represent(wall))
 		}
 		fmt.Println("Is there any wall you would like to change? If yes, specify which one by id. If not, press ENTER.")
 		scanner.Scan()
@@ -78,8 +52,8 @@ func Form() {
 			if err != nil {
 				fmt.Println("Error in reading input. Specify wall or press ENTER.")
 			} else {
-				fmt.Printf(instruct("wall"))
-				wall, exitCode := ReadItem(scanner, "wall")
+				fmt.Printf(square.Instruct("wall"))
+				wall, exitCode := square.ReadItem(scanner, "wall")
 				if exitCode == "quit" {
 					return
 				}
@@ -97,7 +71,7 @@ func Form() {
 	}
 
 	for _, wall := range wallList {
-		area += Area(wall)
+		area += square.Area(wall)
 	}
 
 	fmt.Printf("\n=============================================\nTotal wall area is %.2f m^2\n", area)
@@ -113,58 +87,4 @@ func Form() {
 			fmt.Printf("Please specify a price!")
 		}
 	}
-}
-
-func ReadItem(scanner *bufio.Scanner, item string) (square, string) {
-	isDoubled := true
-	windowList := []square{}
-	fmt.Println()
-	instruct(item)
-	height, exitCode := cli.InputValue(scanner, "height", item, instruct(item))
-	if exitCode != "" {
-		return square{height: 0, width: 0}, exitCode
-	}
-	width, exitCode := cli.InputValue(scanner, "width", item, instruct(item))
-	if exitCode != "" {
-		return square{height: 0, width: 0}, exitCode
-	}
-	if item == "wall" {
-		isDoubled, exitCode = cli.InputBoolean(scanner, "Paint the wall on both sides?")
-		if exitCode != "" {
-			return square{height: 0, width: 0}, exitCode
-		}
-
-		hasOpenings, command := cli.InputBoolean(scanner, "Does the wall have doors, windows or other rectangular openings?")
-		if command != "" {
-			return square{height: 0, width: 0}, command
-		}
-		if hasOpenings {
-			fmt.Println("Please specify the sizes of the windows/doors. Type \"end\" after you are done with windows/doors.")
-			for {
-				window, exitCode := ReadItem(scanner, "window/door")
-				if exitCode == "quit" {
-					return square{}, exitCode
-				}
-				if exitCode == "end" {
-					break
-				}
-				if exitCode == "cancel" {
-					fmt.Println("Current window/door was cancelled.")
-					continue
-				}
-				windowList = append(windowList, window)
-			}
-		}
-	}
-
-	value := square{height: height, width: width, isDoubled: isDoubled, windows: windowList}
-	if item == "wall" {
-		fmt.Println("\nCurrent wall results:", value)
-	}
-	return value, exitCode
-}
-
-func instruct(item string) string {
-	return fmt.Sprintf("\nDescribe the %s in meters (for ex \"1.33\" or \"3\"). Type \"cancel\" to cancel this %s. Type \"end\" to finish inputing %ss:\n",
-		item, item, item)
 }
