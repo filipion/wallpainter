@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 
 	"example.com/wallpaint/cli"
 )
@@ -37,6 +38,7 @@ func Form() {
 	fmt.Println("Welcome to the wall painter! Input `quit` at any time to quit. Input `end` to finish inputing a list of walls or windows.\nInput `cancel` to undo the current wall.")
 	scanner := bufio.NewScanner(os.Stdin)
 	area := 0.0
+	wallList := []square{}
 	for {
 		fmt.Printf("\nDescribe a wall you wish to paint...")
 		wall, exitCode := ReadItem(scanner, "wall")
@@ -51,12 +53,49 @@ func Form() {
 			fmt.Println("Current wall was cancelled.")
 			continue
 		}
+		wallList = append(wallList, wall)
+	}
+	fmt.Printf("\n=============================================\nLet's check that we got everything right. You inputed this data:\n")
+	for {
+		for i, wall := range wallList {
+			fmt.Println("Id:", i, "Wall:", wall)
+		}
+		fmt.Println("Is there any wall you would like to change? If yes, specify which one by id. If not, press ENTER.")
+		scanner.Scan()
+		input := scanner.Text()
+		if input == "" {
+			break
+		} else {
+			id, err := strconv.ParseInt(input, 10, 64)
+			if err != nil {
+				fmt.Println("Error in reading input. Specify wall or press ENTER.")
+			} else {
+				fmt.Printf("\nDescribe a wall you wish to paint...")
+				wall, exitCode := ReadItem(scanner, "wall")
+				if exitCode == "quit" {
+					return
+				}
+				if exitCode == "end" {
+					fmt.Println("Cancelling wall rewrite.")
+					break
+				}
+				if exitCode == "cancel" {
+					fmt.Println("Cancelling wall rewrite.")
+					continue
+				}
+				wallList[id] = wall
+			}
+		}
+	}
+
+	for _, wall := range wallList {
 		area += Area(wall)
 	}
-	fmt.Printf("\n=============================================\nTotal wall area is %.2f\n", area)
+
+	fmt.Printf("\n=============================================\nTotal wall area is %.2f m^2\n", area)
 
 	for {
-		price, exitCode := cli.InputValue(scanner, "price of paint (EUR)", "item", PRICE_INSTRUCTION)
+		price, exitCode := cli.InputValue(scanner, "price of paintjob per square meter (EUR)", "item", PRICE_INSTRUCTION)
 		if exitCode == "" {
 			fmt.Printf("Total price will be %.2f EUR", price*area)
 			break
