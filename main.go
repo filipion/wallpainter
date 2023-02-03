@@ -34,10 +34,11 @@ func main() {
 }
 
 func Form() {
-	fmt.Println("Welcome to the wall painter!")
+	fmt.Println("Welcome to the wall painter! Input `quit` at any time to quit. Input `end` to finish inputing a list of walls or windows.\nInput `cancel` to undo the current wall.")
 	scanner := bufio.NewScanner(os.Stdin)
 	area := 0.0
 	for {
+		fmt.Printf("\nDescribe a wall you wish to paint...")
 		wall, exitCode := ReadItem(scanner, "wall")
 		if exitCode == "quit" {
 			return
