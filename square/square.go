@@ -78,7 +78,7 @@ func ReadItem(scanner *bufio.Scanner, item string) (Square, string) {
 
 	value := Square{height: height, width: width, isDoubled: isDoubled, windows: windowList}
 	if item == "wall" {
-		fmt.Println("\nCurrent wall results:", Represent(value))
+		fmt.Println("\nYou have inputed the following wall:", Represent(value))
 	}
 	return value, exitCode
 }
