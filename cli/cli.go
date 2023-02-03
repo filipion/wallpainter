@@ -6,6 +6,7 @@ import (
 	"strconv"
 )
 
+// Accepts just positive numbers
 func InputValue(scanner *bufio.Scanner, name string, item string, instructionsLine string) (float64, string) {
 	var value float64
 	exitCode := ""
@@ -20,7 +21,7 @@ func InputValue(scanner *bufio.Scanner, name string, item string, instructionsLi
 		input := scanner.Text()
 		value, err := strconv.ParseFloat(input, 64)
 
-		if err != nil {
+		if err != nil || value < 0 {
 			fmt.Println("Input Error!", instructionsLine)
 			fmt.Printf("Input %s:", name)
 		} else {
