@@ -30,6 +30,14 @@ func Area(wall square) float64 {
 	return area
 }
 
+func Represent(wall square) string {
+	text := fmt.Sprintf("Wall of height %.2f and width %.2f\n", wall.height, wall.width)
+	for _, window := range wall.windows {
+		text += fmt.Sprintf("  window of height %.2f and width %.2f\n", window.height, window.width)
+	}
+	return text
+}
+
 func main() {
 	Form()
 }
@@ -58,7 +66,7 @@ func Form() {
 	fmt.Printf("\n=============================================\nLet's check that we got everything right. You inputed this data:\n")
 	for {
 		for i, wall := range wallList {
-			fmt.Println("Id:", i, "Wall:", wall)
+			fmt.Println("Id:", i, Represent(wall))
 		}
 		fmt.Println("Is there any wall you would like to change? If yes, specify which one by id. If not, press ENTER.")
 		scanner.Scan()
