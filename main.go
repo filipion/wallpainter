@@ -43,6 +43,7 @@ func Form() {
 			return
 		}
 		if exitCode == "end" {
+			fmt.Println("Computing total wall area...")
 			break
 		}
 		if exitCode == "cancel" {
@@ -56,8 +57,10 @@ func Form() {
 	for {
 		price, exitCode := cli.InputValue(scanner, "price of paint (EUR)", "item", PRICE_INSTRUCTION)
 		if exitCode == "" {
-			fmt.Printf("Total price will be %.2f", price*area)
+			fmt.Printf("Total price will be %.2f EUR", price*area)
 			break
+		} else if exitCode == "quit" {
+			return
 		} else {
 			fmt.Printf("Please specify a price!")
 		}
@@ -69,18 +72,18 @@ func ReadItem(scanner *bufio.Scanner, item string) (square, string) {
 	windowList := []square{}
 	fmt.Println()
 	instruct(item)
-	height, command := cli.InputValue(scanner, "height", item, instruct(item))
-	if command != "" {
-		return square{height: 0, width: 0}, command
+	height, exitCode := cli.InputValue(scanner, "height", item, instruct(item))
+	if exitCode != "" {
+		return square{height: 0, width: 0}, exitCode
 	}
-	width, command := cli.InputValue(scanner, "width", item, instruct(item))
-	if command != "" {
-		return square{height: 0, width: 0}, command
+	width, exitCode := cli.InputValue(scanner, "width", item, instruct(item))
+	if exitCode != "" {
+		return square{height: 0, width: 0}, exitCode
 	}
 	if item == "wall" {
-		isDoubled, command = cli.InputBoolean(scanner, "Paint the wall on both sides?")
-		if command != "" {
-			return square{height: 0, width: 0}, command
+		isDoubled, exitCode = cli.InputBoolean(scanner, "Paint the wall on both sides?")
+		if exitCode != "" {
+			return square{height: 0, width: 0}, exitCode
 		}
 
 		hasOpenings, command := cli.InputBoolean(scanner, "Does the wall have doors, windows or other rectangular openings?")
@@ -88,7 +91,7 @@ func ReadItem(scanner *bufio.Scanner, item string) (square, string) {
 			return square{height: 0, width: 0}, command
 		}
 		if hasOpenings {
-			fmt.Println("Please specify the sizes of the windows/doors")
+			fmt.Println("Please specify the sizes of the windows/doors. Type \"end\" after you are done.")
 			for {
 				window, exitCode := ReadItem(scanner, "window/door")
 				if exitCode == "quit" {
@@ -110,7 +113,7 @@ func ReadItem(scanner *bufio.Scanner, item string) (square, string) {
 	if item == "wall" {
 		fmt.Println("Current wall results:", value)
 	}
-	return value, command
+	return value, exitCode
 }
 
 func instruct(item string) string {
