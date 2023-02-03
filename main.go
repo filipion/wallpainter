@@ -35,12 +35,12 @@ func main() {
 }
 
 func Form() {
-	fmt.Println("Welcome to the wall painter! Input `quit` at any time to quit. Input `end` to finish inputing a list of walls or windows.\nInput `cancel` to undo the current wall.")
+	fmt.Println("Welcome to the wall painter! Input \"quit\" at any time to quit the program")
 	scanner := bufio.NewScanner(os.Stdin)
 	area := 0.0
 	wallList := []square{}
 	for {
-		fmt.Printf("\nDescribe a wall you wish to paint...")
+		fmt.Printf(instruct("wall"))
 		wall, exitCode := ReadItem(scanner, "wall")
 		if exitCode == "quit" {
 			return
@@ -70,7 +70,7 @@ func Form() {
 			if err != nil {
 				fmt.Println("Error in reading input. Specify wall or press ENTER.")
 			} else {
-				fmt.Printf("\nDescribe a wall you wish to paint...")
+				fmt.Printf(instruct("wall"))
 				wall, exitCode := ReadItem(scanner, "wall")
 				if exitCode == "quit" {
 					return
@@ -131,7 +131,7 @@ func ReadItem(scanner *bufio.Scanner, item string) (square, string) {
 			return square{height: 0, width: 0}, command
 		}
 		if hasOpenings {
-			fmt.Println("Please specify the sizes of the windows/doors. Type \"end\" after you are done.")
+			fmt.Println("Please specify the sizes of the windows/doors. Type \"end\" after you are done with windows/doors.")
 			for {
 				window, exitCode := ReadItem(scanner, "window/door")
 				if exitCode == "quit" {
@@ -151,12 +151,12 @@ func ReadItem(scanner *bufio.Scanner, item string) (square, string) {
 
 	value := square{height: height, width: width, isDoubled: isDoubled, windows: windowList}
 	if item == "wall" {
-		fmt.Println("Current wall results:", value)
+		fmt.Println("\nCurrent wall results:", value)
 	}
 	return value, exitCode
 }
 
 func instruct(item string) string {
-	return fmt.Sprintf("Describe the %s in meters (for ex \"1.33\" or \"3\"). Type \"cancel\" to cancel this wall. Type \"quit\" to finish inputing walls:\n",
-		item)
+	return fmt.Sprintf("\nDescribe the %s in meters (for ex \"1.33\" or \"3\"). Type \"cancel\" to cancel this %s. Type \"end\" to finish inputing %ss:\n",
+		item, item, item)
 }
